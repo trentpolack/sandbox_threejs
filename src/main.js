@@ -21,24 +21,38 @@ const setupRenderer = function( ) {
 }
 
 // Setup some temp geometry.
-const geometry = new THREE.TorusKnotGeometry( 1.75, 0.1, 32, 10, 2, 3 );
-const material = new THREE.MeshBasicMaterial( { 
-    color: 0x00ff00
+const geometry = new THREE.TorusKnotGeometry( 2.5, 0.1, 32, 16, 2, 3 );
+const material = new THREE.MeshStandardMaterial( { 
+    color: 0x00ff00,
+    roughness: 1.0,
+    metallic: 0.0
 } );
 
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+// Add the actual mesh geometry to the scene.
+const meshGeometry = new THREE.Mesh( geometry, material );
+scene.add( meshGeometry );
 
-camera.position.z = 5.0;
+// Add a rough light.
+const light = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
+scene.add( light );
 
-const animate = function( ) {
-    requestAnimationFrame( animate );
+camera.position.z = 7.0;
 
-    cube.rotation.x+= 0.01;
-    cube.rotation.y+= 0.01;
+// Game tick update.
+const gameTick = function( ) {
+    requestAnimationFrame( gameTick );
 
-    renderer.render( scene, camera );
+    meshGeometry.rotation.x+= 0.01;
+    meshGeometry.rotation.y+= 0.01;
+
+    renderTick( );
 };
 
+// Renderer tick update.
+const renderTick = function( ) {
+    renderer.render( scene, camera );
+}
+
 setupRenderer( );
-animate( );
+
+gameTick( );
