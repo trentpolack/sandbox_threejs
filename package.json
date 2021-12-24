@@ -1,4 +1,12 @@
 {
+  "name": "sandbox_threejs",
+  "productName": "sandbox_threejs",
+  "description": "Sandbox for stuff.",
+  "version": "v0.0.1",
+  "author": "Trent Polack",
+  "homepage": "https://trent-polack.com",
+  "license": "MIT",
+  "repository": "https://github.com/trentpolack/sandbox_threejs",
   "dependencies": {
     "three": "^0.134.0"
   },
