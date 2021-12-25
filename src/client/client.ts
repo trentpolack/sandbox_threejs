@@ -1,27 +1,40 @@
 import * as THREE from 'three'
+import { WEBGL } from 'three/examples/jsm/WebGL'
+import Stats from 'three/examples/jsm/libs/stats.module'
 //import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
-//import { Platform } from './platform/platform.js';
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );
+const scene = new THREE.Scene( );
+const camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth/window.innerHeight, 0.1, 1000.0 );
 
-// Setup the platform instance.
-//const platform = new Platform( renderer.domElement );
-//const platform = new Platform( document.querySelector( '#viewport ') );
+function platformSetup( ) : boolean {
+    // Check and log WebGL support.
+    const isWebGLSupported = WEBGL.isWebGLAvailable( );
+    const isWebGL2Supported = WEBGL.isWebGL2Available( );
+    console.log( 'Sandbox Setup\nWebGL 1.0: %s\nWebGL 2.0: %s', isWebGLSupported, isWebGL2Supported );
 
+    return isWebGL2Supported;
+}
+
+platformSetup( );
+
+// Setup the stats widget.
+const stats = Stats( );
+document.body.appendChild( stats.dom );
+
+const canvas = document.querySelector( '#viewport' );
 const renderer = new THREE.WebGLRenderer( {
     antialias: true
 } );
 
-const setupRenderer = function() {
+function setupRenderer() {
     // Configure renderer and canvas.
+    canvas?.appendChild( renderer.domElement );
     renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
 
     window.addEventListener( 'resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight
-        camera.updateProjectionMatrix()
-        renderer.setSize( window.innerWidth, window.innerHeight )
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
     } );
 }
 
@@ -44,20 +57,23 @@ scene.add( light );
 camera.position.z = 7.0;
 
 // Game tick update.
-const gameTick = function() {
+function gameTick( ) {
     requestAnimationFrame( gameTick );
 
     meshGeometry.rotation.x += 0.01;
     meshGeometry.rotation.y += 0.01;
 
-    renderTick();
-};
+    // Execute the renderer tick. This... Shouldn't be done here.
+    renderTick( );
+
+    stats.update( );
+}
 
 // Renderer tick update.
-const renderTick = function() {
+function renderTick( ) {
     renderer.render( scene, camera );
 }
 
-setupRenderer();
+setupRenderer( );
 
-gameTick();
+gameTick( );

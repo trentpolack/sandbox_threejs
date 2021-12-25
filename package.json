@@ -3,11 +3,12 @@
   "productName": "sandbox_threejs",
   "description": "Sandbox for stuff.",
   "scripts": {
-    "dev": "webpack serve --config ./src/client/webpack.dev.js",
-    "build:platform": "tsc -p ./src/platform",
-    "build:webpack": "webpack --config ./src/client/webpack.prod.js && tsc -p ./src/platform",
-    "build": "npm run build:webpack && npm run build:platform && cp -r ./src/client/css ./dist/client/css && cp ./src/client/index.html ./dist/client/index.html",
-    "start": "node ./dist/platform/platform.js"
+    "clean": "rm -rf ./build",
+    "dev": "npm run build:platform && webpack serve --config ./src/webpack.dev.js",
+    "build:src": "webpack --config ./src/webpack.prod.js",
+    "build:platform": "cp -r ./platform ./build/",
+    "build:content": "cp -r ./content ./build/",
+    "build": "npm run build:src && npm run build:platform && npm run build:content"
   },
   "version": "v0.0.1",
   "author": "Trent Polack",

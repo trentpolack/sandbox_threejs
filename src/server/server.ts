@@ -3,9 +3,11 @@
  *  Minimal server for sandbox. Load http://127.0.0.1:7777 for testing.
 */ 
 
-import express from "express"
-import path from "path"
-import http from "http"
+/*
+
+import express from 'express'
+import path from 'path'
+import http from 'http'
 
 const port: number = 7777
 
@@ -30,3 +32,5 @@ class Platform {
 }
 
 new Platform( port ).Start()
+
+*/
