@@ -6,8 +6,8 @@
     "clean": "rm -rf ./build",
     "dev": "npm run build:platform && webpack serve --config ./src/webpack.dev.js",
     "build:src": "webpack --config ./src/webpack.prod.js",
-    "build:platform": "cp -r ./platform ./build/",
-    "build:content": "cp -r ./content ./build/",
+    "build:platform": "cp -r ./platform/ ./build",
+    "build:content": "cp -r ./content/ ./build",
     "build": "npm run build:src && npm run build:platform && npm run build:content"
   },
   "version": "v0.0.1",
@@ -17,6 +17,7 @@
   "repository": "https://github.com/trentpolack/sandbox_threejs",
   "devDependencies": {
     "@types/three": "^0.135.0",
+    "lil-gui": "^0.15.0",
     "three": "^0.136.0",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.4",

@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import { LogLuvEncoding } from 'three';
+import { GUI } from 'lil-gui'
 //import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
 
 window.onload = () =>
@@ -13,7 +13,10 @@ window.onload = () =>
     Client.initCanvas( true );
     Client.initRenderer( );
     Client.initClient( );
-    
+
+    let lightFolder = Client.gui.addFolder( 'light' );
+    lightFolder.addColor( Client.sceneLight, 'color' );
+
     Client.main( );
 }
 
@@ -43,6 +46,7 @@ export default class Client
 
     // Optional client elements.
     public static stats : Stats;
+    public static gui : GUI;
 
 	/**
      * Application entry point.
@@ -77,6 +81,8 @@ export default class Client
             this.stats = Stats( );
             document.body.appendChild( this.stats.dom );
         }
+
+        this.gui = new GUI( );
 
         {
             // Setup the canvas.
