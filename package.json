@@ -7,7 +7,7 @@
     "dev": "npm run build:platform && webpack serve --config ./src/webpack.dev.js",
     "build:src": "webpack --config ./src/webpack.prod.js",
     "build:platform": "cp -r ./platform/ ./build",
-    "build:content": "cp -r ./content/ ./build",
+    "build:content": "cp -r ./content/ ./build/content",
     "build": "npm run build:src && npm run build:platform && npm run build:content"
   },
   "version": "v0.0.1",

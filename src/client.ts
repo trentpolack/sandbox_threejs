@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'lil-gui'
-//import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
+
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+
+import Stats from 'three/examples/jsm/libs/stats.module'
 
 // Test geometry.
 const torusKnotGeometryData = {
@@ -29,7 +31,7 @@ window.onload = () => {
      */
 
     {
-        // Camera GUI parameters.
+        // Torus Knot customization GUI parameters.
         let knotFolder = Client.gui.addFolder( 'knot' );
         knotFolder.add( torusKnotGeometryData, 'radius', 0.25, 15, 0.25 );
         knotFolder.add( torusKnotGeometryData, 'tube', 0.1, 10, 0.1 );
@@ -52,6 +54,20 @@ window.onload = () => {
 }
 
 /**
+ * Temporary interface/class to deal with loading the bunny. 
+ *  NOTE: I'm still learning okay.
+ */
+interface IMeshGroup {
+    group : THREE.Group;
+    visible : boolean;
+}
+
+class MeshGroup implements IMeshGroup {
+    group = new THREE.Group( );
+    visible = false;
+}
+
+/**
  * Client Static Class Definition.
  *  Application entry point.
  */
@@ -66,7 +82,9 @@ export default class Client
     public static camera : THREE.PerspectiveCamera;
 
     public static sceneLight : THREE.DirectionalLight;
+
     public static meshGeometry : THREE.Mesh;
+    public static bunnyMeshGroup : MeshGroup;
 
     public static orbitCamera : OrbitControls;
 
@@ -151,11 +169,46 @@ export default class Client
         this.scene.add( this.sceneLight );
     
         const backlight = new THREE.DirectionalLight( 0xCC0000, 1.5 );
-        backlight.translateZ( -5.0 );
+        backlight.translateZ( -500.0 );
         this.scene.add( backlight );
   
         this.orbitCamera = new OrbitControls( this.camera, this.renderer.domElement );
         this.camera.position.z = 50.0;
+
+        /**
+         * TEMP.
+         *  Example loading an FBX.
+         */
+        const fbxLoader = new FBXLoader( );
+        this.bunnyMeshGroup = new MeshGroup( );
+        fbxLoader.load( 'content/meshes/misc/sm_stanford_bunny_02.fbx', function( obj ) {
+            Client.bunnyMeshGroup.group = obj;
+            Client.bunnyMeshGroup.group.traverse( function( child ) {
+                if( ( child as THREE.Mesh ).isMesh ) {
+                    ( child as THREE.Mesh ).material = material;
+                        if( ( child as THREE.Mesh ).material) {
+                            ( ( child as THREE.Mesh ).material as THREE.MeshBasicMaterial ).transparent = false;
+                            child.visible = Client.bunnyMeshGroup.visible;
+                        }
+                    }
+                } )
+
+            Client.bunnyMeshGroup.group.scale.set( 0.1, 0.1, 0.1 );
+            Client.scene.add( obj );
+        } );
+
+        {
+            // Bunny visibility GUI parameters.
+            let bunnyFolder = Client.gui.addFolder( 'bunny' );
+            bunnyFolder.add( this.bunnyMeshGroup, 'visible' );
+            bunnyFolder.onChange( () => {
+                this.bunnyMeshGroup.group.traverse( function( child ) {
+                    if ( child instanceof THREE.Mesh ) {
+                        child.visible = Client.bunnyMeshGroup.visible;
+                    }
+                });
+            } );
+        }    
     }
 
     /**
