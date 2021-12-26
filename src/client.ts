@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'lil-gui'
-import { Vector3 } from 'three';
 //import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
 
 // Test geometry.
@@ -27,13 +27,6 @@ window.onload = () => {
     /**
      * Temp functionality support.
      */
-    {
-        // Camera GUI parameters.
-        let cameraFolder = Client.gui.addFolder( 'camera' );
-        cameraFolder.add( Client.camera.position, 'x', -10, 10, 1 );
-        cameraFolder.add( Client.camera.position, 'y', -10, 10, 1 );
-        cameraFolder.add( Client.camera.position, 'z', 5, 100, 1 );
-    }
 
     {
         // Camera GUI parameters.
@@ -74,6 +67,8 @@ export default class Client
 
     public static sceneLight : THREE.DirectionalLight;
     public static meshGeometry : THREE.Mesh;
+
+    public static orbitCamera : OrbitControls;
 
     /**
      * TEMPORARY MEMBERS: END.
@@ -159,6 +154,7 @@ export default class Client
         backlight.translateZ( -5.0 );
         this.scene.add( backlight );
   
+        this.orbitCamera = new OrbitControls( this.camera, this.renderer.domElement );
         this.camera.position.z = 50.0;
     }
 
