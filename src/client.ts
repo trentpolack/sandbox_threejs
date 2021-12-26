@@ -2,10 +2,20 @@ import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'lil-gui'
+import { Vector3 } from 'three';
 //import { TrackballControls } from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
 
-window.onload = () =>
-{
+// Test geometry.
+const torusKnotGeometryData = {
+    radius: 10,
+    tube: 2.5,
+    tubularSegments: 64,
+    radialSegments: 8,
+    p: 2,
+    q: 3
+};
+
+window.onload = () => {
 	window.focus();
 
     console.assert( Client.checkPlatformRequirements( ), 'WebGL 2.0 not supported.' );
@@ -14,8 +24,36 @@ window.onload = () =>
     Client.initRenderer( );
     Client.initClient( );
 
-    let lightFolder = Client.gui.addFolder( 'light' );
-    lightFolder.addColor( Client.sceneLight, 'color' );
+    /**
+     * Temp functionality support.
+     */
+    {
+        // Camera GUI parameters.
+        let cameraFolder = Client.gui.addFolder( 'camera' );
+        cameraFolder.add( Client.camera.position, 'x', -10, 10, 1 );
+        cameraFolder.add( Client.camera.position, 'y', -10, 10, 1 );
+        cameraFolder.add( Client.camera.position, 'z', 5, 100, 1 );
+    }
+
+    {
+        // Camera GUI parameters.
+        let knotFolder = Client.gui.addFolder( 'knot' );
+        knotFolder.add( torusKnotGeometryData, 'radius', 0.25, 15, 0.25 );
+        knotFolder.add( torusKnotGeometryData, 'tube', 0.1, 10, 0.1 );
+        knotFolder.add( torusKnotGeometryData, 'tubularSegments', 5, 250, 1 );
+        knotFolder.add( torusKnotGeometryData, 'radialSegments', 5, 20, 1 );
+        knotFolder.add( torusKnotGeometryData, 'p', 1, 20, 1 );
+        knotFolder.add( torusKnotGeometryData, 'q', 1, 20, 1 );
+
+        knotFolder.onChange( () => {
+            Client.meshGeometry.geometry.dispose( );
+            Client.meshGeometry.geometry = new THREE.TorusKnotGeometry( torusKnotGeometryData.radius, torusKnotGeometryData.tube, torusKnotGeometryData.tubularSegments, torusKnotGeometryData.radialSegments, torusKnotGeometryData.p, torusKnotGeometryData.q );
+        } );
+    }
+
+    /**
+     * Temp functionality support (end).
+     */
 
     Client.main( );
 }
@@ -103,22 +141,25 @@ export default class Client
          */
        
         // Setup some temp geometry.
-        const geometry = new THREE.TorusKnotGeometry( 2.5, 0.1, 32, 16, 2, 3 );
         const material = new THREE.MeshStandardMaterial( {
-            color: 0x00ff00,
+            color: 0xcccccc,
             roughness: 1.0,
-            metalness: 0.0
+            metalness: 1.0
         } );
 
         // Add the actual mesh geometry to the scene.
-        this.meshGeometry = new THREE.Mesh( geometry, material );
+        this.meshGeometry = new THREE.Mesh( new THREE.TorusKnotGeometry( torusKnotGeometryData.radius, torusKnotGeometryData.tube, torusKnotGeometryData.tubularSegments, torusKnotGeometryData.radialSegments, torusKnotGeometryData.p, torusKnotGeometryData.q ), material );
         this.scene.add( this.meshGeometry );
 
         // Add a rough light.
         this.sceneLight = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
         this.scene.add( this.sceneLight );
+    
+        const backlight = new THREE.DirectionalLight( 0xCC0000, 1.5 );
+        backlight.translateZ( -5.0 );
+        this.scene.add( backlight );
   
-        this.camera.position.z = 7.0;
+        this.camera.position.z = 50.0;
     }
 
     /**
@@ -128,6 +169,7 @@ export default class Client
         this.renderer = new THREE.WebGLRenderer( {
             antialias: true
         } );
+        this.renderer.setClearColor( 0x111111 );
 
         this.scene = new THREE.Scene( );
         this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth/window.innerHeight, 0.1, 1000.0 );
