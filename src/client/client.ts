@@ -145,6 +145,8 @@ export default class Client {
             antialias: true
         } );
         this.renderer.setClearColor( 0x111111 );
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.VSMShadowMap;
 
         this.scene = new THREE.Scene( );
         this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );

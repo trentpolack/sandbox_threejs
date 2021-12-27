@@ -22,7 +22,6 @@ const torusKnotGeometryData = {
 
 // Test lights.
 const directionalLight_01 : THREE.Light = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
-const directionalLight_02 : THREE.Light = new THREE.DirectionalLight( 0xCC0000, 1.5 );
 
 window.onload = ( ) => {
 	window.focus( );
@@ -57,6 +56,20 @@ function init( ) {
      * NOTE (trent, 12/26): Temp code while moving bits around.
      */
 
+    {
+        // Setup ground plane.
+        const groundMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+        groundMaterial.color.setHSL( 0.095, 1, 0.75 );
+
+        const groundGeo = new THREE.PlaneGeometry( 1000.0, 1000.0 );
+        const groundMesh = new THREE.Mesh( groundGeo, groundMaterial );
+        groundMesh.rotateX( Math.PI*1.5 );
+        groundMesh.translateZ( -25.0 );
+        groundMesh.receiveShadow = true;
+
+        Client.scene.add( groundMesh );
+    }
+    
     // SETUP TEMP MATERIAL AND GEO.
     const material = new THREE.MeshStandardMaterial( {
         color: 0xcccccc,
@@ -66,14 +79,44 @@ function init( ) {
 
     // Add the actual mesh geometry to the scene.
     torusKnotMeshGeometry = new THREE.Mesh( new THREE.TorusKnotGeometry( torusKnotGeometryData.radius, torusKnotGeometryData.tube, torusKnotGeometryData.tubularSegments, torusKnotGeometryData.radialSegments, torusKnotGeometryData.p, torusKnotGeometryData.q ), material );
+    torusKnotMeshGeometry.castShadow = true;
     Client.scene.add( torusKnotMeshGeometry );
 
-    // SETUP TEMP LIGHTS.
-    Client.scene.add( directionalLight_01 );
+    {
+        const skylight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        skylight.color.setHSL( 0.6, 1, 0.6 );
+        skylight.groundColor.setHSL( 0.095, 1, 0.75 );
+        skylight.position.set( 0, 50, 0 );
+        Client.scene.add( skylight );
+    }
 
-    const backlight = new THREE.DirectionalLight( 0xCC0000, 1.5 );
-    directionalLight_02.translateZ( -500.0 );
-    Client.scene.add( directionalLight_02 );
+    {
+        // SETUP TEMP LIGHTS.
+        directionalLight_01.name = "sun";
+        directionalLight_01.position.set( 1, 1, 1 );
+        directionalLight_01.castShadow = true;
+        directionalLight_01.shadow.mapSize.width = 512;
+        directionalLight_01.shadow.mapSize.height = 512;
+        directionalLight_01.shadow.radius = 4;
+        directionalLight_01.shadow.bias = - 0.0005;
+
+        directionalLight_01.position.set( -1, 0.75, 1 );
+        directionalLight_01.position.multiplyScalar( 25.0 );
+
+        directionalLight_01.castShadow = true;
+        directionalLight_01.shadow.mapSize = new THREE.Vector2( 1024, 1024 );
+
+        const size = 300;
+        directionalLight_01.shadow.camera = new THREE.OrthographicCamera( -size, size, size, -size, 0.1, 3500.0 );
+        directionalLight_01.shadow.bias = -0.0001;
+        Client.scene.add( directionalLight_01 );
+    }
+    
+    {
+        const backlight = new THREE.DirectionalLight( 0xFFFFFF, 1.5 );
+        backlight.translateZ( -500.0 );
+        Client.scene.add( backlight );
+    }
 
     // CAMERA!
     const orbitCamera = new OrbitControls( Client.camera, Client.renderer.domElement );
@@ -85,6 +128,7 @@ function init( ) {
         bunnyMeshGroup.group = obj;
         bunnyMeshGroup.group.traverse( function( child ) {
             if( ( child as THREE.Mesh ).isMesh ) {
+                ( child as THREE.Mesh ).castShadow = true;
                 ( child as THREE.Mesh ).material = material;
                     if( ( child as THREE.Mesh ).material) {
                         ( ( child as THREE.Mesh ).material as THREE.MeshBasicMaterial ).transparent = false;
@@ -92,7 +136,6 @@ function init( ) {
                     }
                 }
             } )
-
         bunnyMeshGroup.group.scale.set( 0.1, 0.1, 0.1 );
         Client.scene.add( obj );
     } );
