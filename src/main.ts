@@ -1,11 +1,9 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GUI } from 'lil-gui'
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
-import Stats from 'three/examples/jsm/libs/stats.module'
 import { Mesh } from 'three';
 import Client from './client/client';
 
@@ -26,19 +24,16 @@ const torusKnotGeometryData = {
 const directionalLight_01 : THREE.Light = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
 const directionalLight_02 : THREE.Light = new THREE.DirectionalLight( 0xCC0000, 1.5 );
 
-window.onload = () => {
-	window.focus();
-
-    console.assert( Client.checkPlatformRequirements( ), 'WebGL 2.0 not supported.' );
-
-    Client.initCanvas( true );
-    Client.initRenderer( );
-    Client.initClient( );
+window.onload = ( ) => {
+	window.focus( );
+    
+    // Setup the client.
+    Client.init( true );
 
     init( );
-    main( );
 
-    Client.update( );
+    Client.registerTickFunction( main );
+    Client.run( );
 }
 
 /**
@@ -139,6 +134,12 @@ function init( ) {
     }
 }
 
-function main( ) {
+/**
+ * Tick function.
+ * @param deltaTime Time delta since the prior tick.
+ */
+function main( deltaTime : number ) : boolean {
+//    console.log( deltaTime );
 
+    return true;
 }
