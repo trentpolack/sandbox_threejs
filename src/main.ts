@@ -144,6 +144,8 @@ function init( ) {
     /**
      * Temp UI Setup.
      */
+    Client.gui.title( 'JoyGL Client' );
+
     {
         // Torus Knot customization GUI parameters.
         let knotFolder = Client.gui.addFolder( 'knot' );
@@ -162,6 +164,8 @@ function init( ) {
 
             torusKnotMeshGeometry.visible = torusKnotGeometryData.visible;
         } );
+
+        knotFolder.close( );
     }
 
     {
@@ -175,6 +179,14 @@ function init( ) {
                 }
             });
         } );
+
+        bunnyFolder.close( );
+    }
+
+    {
+        // Miscellaneous controls and functionality.
+        let debugFolder = Client.gui.addFolder( 'debug' );
+        debugFolder.add( Client.renderer, 'logRenderStats' );
     }
 }
 

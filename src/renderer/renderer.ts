@@ -102,6 +102,31 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
     }
 
     /**
+     * Method to gather and print render stats.
+     *  TODO (trent, 12/28): Expand range of profiling/visualization of render stats... "Some day".
+     */
+    public logRenderStats( ) : void {
+        const renderInfo : THREE.WebGLInfo = this.getRenderer( ).info;
+
+        // Format output of high-level render stats.
+        console.log( "Renderer Profile (Frame %d):\n Draw Calls: %d\n Meshes: %d\n Textures: %d\n Stats:\n\tPoints: %d\n\tLines: %d\n\tTriangles: %d", 
+            renderInfo.render.frame,
+            renderInfo.render.calls,
+            renderInfo.memory.geometries,
+            renderInfo.memory.textures,
+            renderInfo.render.points,
+            renderInfo.render.lines,
+            renderInfo.render.triangles );
+        
+        // Log program object directly for further inspection.
+        console.log( renderInfo.programs );
+    }
+
+    /**
+     * Static Methods. 
+     **/
+
+    /**
      * Window resize event method.
      * @param renderer Renderer instance for resize handling.
      */
