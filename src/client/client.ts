@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GUI } from 'lil-gui'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
+
+import Renderer from '../renderer/renderer'
 
 /**
  * Function interface for anything that should be ticked as part of the primary client loop.
@@ -14,17 +15,15 @@ export interface ITickFunction {
 }
 
 /**
- * Client Static Class Definition.
+ * Client Class Definition (Singleton).
  *  Application entry point.
  */
 export default class Client {
     /**
      * TEMPORARY MEMBERS: BEGIN.
      */
-
-    public static renderer: THREE.WebGLRenderer;
-    public static scene: THREE.Scene;
-    public static camera: THREE.PerspectiveCamera;
+    public static scene : THREE.Scene;
+    public static camera : THREE.PerspectiveCamera;
 
     public static gui : GUI;
 
@@ -38,6 +37,9 @@ export default class Client {
     private static time : THREE.Clock;
     private static tickFunctionRegister : Array< ITickFunction >;
 
+    // Rendering data.
+    public static renderer : Renderer;
+
     // Optional client elements.
     public static stats : Stats;
 
@@ -45,7 +47,7 @@ export default class Client {
      * Client initialization and setup.
      * @param enableStats Enable the stat page elements.
      */
-    public static init( enableStats : boolean = true ) : void {
+    public static init( enableStats : boolean = true, verboseLogs : boolean = false ) : void {
         console.assert( this.checkPlatformRequirements( ), 'WebGL 2.0 not supported.' );
         
         // High priority early inits.
@@ -62,17 +64,59 @@ export default class Client {
 
         {
             // Setup the canvas.
-            //  TODO (trent, 12/25): I'm 100% sure this is not the way to do this.
-            let canvasTemp = document.querySelector< HTMLElement >( '#viewport' );
-            console.assert( canvasTemp !== null, 'Viewport renderer element not found.' );
+            let viewport = document.querySelector< HTMLElement >( '#viewport' );
+            console.assert( viewport !== null, 'Viewport renderer element not found.' );
 
-            this.canvas = canvasTemp!;
+            this.canvas = viewport!;
         }
 
+        {
+            // Renderer setup.
+            this.renderer = new Renderer( false, true );
+            this.renderer.setSize( window.innerWidth, window.innerHeight );
+
+            this.canvas.appendChild( this.renderer.getDomElement( ) );
+        }
+
+        // Temp method for setting up yet-to-be-organized functionality.
+        this.initSystems_Temp( );
+
+        // Create the tick stack.
         this.tickFunctionRegister = new Array< ITickFunction >( );
 
-        // TODO (trent, 12/26): Move this.
-        this.initRenderer( );
+        if( verboseLogs ) {
+            // Log some additional information.
+            //  TODO (trent, 12/28): Pretty up all output/capability information.
+            console.log( this.renderer.getRenderer( ).capabilities );
+        }
+    }
+
+    /**
+     * Check for platform capabilities (primarily WebGL 2.0 support).
+     *  TODO (trent, 12/25): Actually build-in support for WebGL 1.0. This is totally something that can be encapsulated in a single TODO.
+     */
+     public static checkPlatformRequirements( ) : boolean {
+        // Check and log WebGL support.
+        const isWebGLSupported = WEBGL.isWebGLAvailable( );
+        const isWebGL2Supported = WEBGL.isWebGL2Available( );
+        console.log( 'JoyGL Client\n\tWebGL Support:\tWebGL 1.0 (%s)\tWebGL 2.0 (%s)', isWebGLSupported, isWebGL2Supported );
+
+        return isWebGL2Supported;
+    }
+
+    /**
+     * Temp catch-all for other system setup.
+     */
+    public static initSystems_Temp( ) : void {
+        this.scene = new THREE.Scene( );
+        this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );
+
+        window.addEventListener( 'resize', ( ) => {
+            this.camera.aspect = window.innerWidth/window.innerHeight;
+            this.camera.updateProjectionMatrix( );
+
+            Renderer.onWindowResize( this.renderer );
+        } );
     }
 
     /**
@@ -94,82 +138,37 @@ export default class Client {
      * Application entry point.
      */
     private static tick( ) : void {
-        const deltaTime : number = Client.time.getDelta( );
+        const deltaTime : number = this.time.getDelta( );
 
-        if( Client.stats != null ) {
+        if( this.stats != null ) {
             // Update the stats component. If it exists.
-            Client.stats.update( );
+            this.stats.update( );
         }
 
         {
             // Iterate through register tick functions.
-            let i = Client.tickFunctionRegister.length;
+            let i = this.tickFunctionRegister.length;
             while( i-- ) {
-                if( !Client.tickFunctionRegister[i]( deltaTime ) ) {
+                if( !this.tickFunctionRegister[i]( deltaTime ) ) {
                     // Tick method flagged for removal.
-                    Client.tickFunctionRegister.splice( i, 1 );
+                    this.tickFunctionRegister.splice( i, 1 );
                 }
             }
         }
 
-        // Tick the renderer last.
-        Client.tickRenderer( );
+        // Render the current frame to the canvas.
+        this.renderer.renderFrame( this.scene, this.camera );
 
         // Queue up another frame.
-        requestAnimationFrame( Client.tick );
+        const tickBinding = this.tick.bind( Client );
+        requestAnimationFrame( tickBinding );
     }
 
     /**
-     * Check for platform capabilities (primarily WebGL 2.0 support).
-     *  TODO (trent, 12/25): Actually build-in support for WebGL 1.0. This is totally something that can be encapsulated in a single TODO.
+     * Get the client's DOM canvas.
+     * @returns Client's DOM element which encapsulates the primary renderer.
      */
-    public static checkPlatformRequirements( ) : boolean {
-        // Check and log WebGL support.
-        const isWebGLSupported = WEBGL.isWebGLAvailable( );
-        const isWebGL2Supported = WEBGL.isWebGL2Available( );
-        console.log( 'Sandbox Setup\nWebGL 1.0: %s\nWebGL 2.0: %s', isWebGLSupported, isWebGL2Supported );
-
-        return isWebGL2Supported;
-    }
-
-    /**
-     * Renderer setup.
-     */
-    //  physicallyCorrectLights: false
-    //  toneMapping: THREE.NoToneMapping
-    //  toneMappingExposure: 1.0
-    public static initRenderer( ) : void {
-        this.renderer = new THREE.WebGLRenderer( {
-            precision: undefined,       // options: "highp", "mediump" or "lowp".
-            powerPreference: undefined, // options: "high-performance", "low-power" or "default".
-            antialias: true
-        } );
-        this.renderer.setClearColor( 0x111111 );
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.VSMShadowMap;
-
-        this.scene = new THREE.Scene( );
-        this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );
-
-        this.canvas.appendChild( this.renderer.domElement );
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-        window.addEventListener( 'resize', ( ) => {
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix( );
-            this.renderer.setSize( window.innerWidth, window.innerHeight );
-        } );
-
-        /**
-         * TEMPORARY LOGIC.
-         */
-    }
-
-    /**
-     * Render tick method.
-     *  TODO: Should be split into a separate class and PLEASE make an actual separate thread from the game thread if at all possible.
-     */
-    public static tickRenderer( ) : void {
-        this.renderer.render( this.scene, this.camera );
+    public static getClientCanvas( ) : HTMLElement {
+        return this.canvas;
     }
 }

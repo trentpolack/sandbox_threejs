@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 import { Mesh } from 'three';
+
 import Client from './client/client';
 
 // Test geometry.
@@ -27,7 +28,7 @@ window.onload = ( ) => {
 	window.focus( );
     
     // Setup the client.
-    Client.init( true );
+    Client.init( true, true );
 
     init( );
 
@@ -119,7 +120,7 @@ function init( ) {
     }
 
     // CAMERA!
-    const orbitCamera = new OrbitControls( Client.camera, Client.renderer.domElement );
+    const orbitCamera = new OrbitControls( Client.camera, Client.getClientCanvas( ) );
     Client.camera.position.z = 50.0;
 
     // SETUP THE BUNNY.
@@ -183,6 +184,5 @@ function init( ) {
  */
 function main( deltaTime : number ) : boolean {
 //    console.log( deltaTime );
-
     return true;
 }
