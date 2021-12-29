@@ -31,6 +31,8 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
         // Miscellaneous other settings.
         this.webglRenderer.setClearColor( new Color( 0.1, 0.1, 0.1 ), 1.0 );
 
+        this.webglRenderer.setPixelRatio( 1.0 );
+
     //  physicallyCorrectLights: false
     //  toneMapping: THREE.NoToneMapping
     //  toneMappingExposure: 1.0
@@ -68,6 +70,22 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
         this.getRenderer( ).getSize( size );
 
         return size;
+    }
+
+    /**
+     * Set the renderer's device pixel ratio. Defaults to 1.0.
+     * @param pixelRatio Device pixel ratio for properly supporting high-DPU canvases.
+     */
+    public setPixelRatio( pixelRatio : number ) {
+        this.getRenderer( ).setPixelRatio( pixelRatio );
+    }
+
+    /**
+     * Accessor for the renderer's device pixel ratio.
+     * @returns Renderer's current pixel ratio.
+     */
+    public getPixelRatio( ) : number {
+        return( this.getRenderer( ).getPixelRatio( ) );
     }
 
     /**

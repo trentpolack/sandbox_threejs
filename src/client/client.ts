@@ -142,7 +142,7 @@ export default class Client {
 
         if( this.stats != null ) {
             // Update the stats component. If it exists.
-            this.stats.update( );
+            this.stats.begin( );
         }
 
         {
@@ -159,6 +159,11 @@ export default class Client {
         // Render the current frame to the canvas.
         this.renderer.renderFrame( this.scene, this.camera );
 
+        if( this.stats != null ) {
+            // Update the stats component. If it exists.
+            this.stats.end( );
+        }
+    
         // Queue up another frame.
         const tickBinding = this.tick.bind( Client );
         requestAnimationFrame( tickBinding );
