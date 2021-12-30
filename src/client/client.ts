@@ -93,6 +93,14 @@ export default class Client {
     }
 
     /**
+     * Client destruction method; since this class is a singleton, this clears out members which need manual cleanup.
+     */
+    public static dispose( ) : void {
+        // Cleaned up last-in/first-out style.
+        this.renderer.dispose( );
+    }
+
+    /**
      * Check for platform capabilities (primarily WebGL 2.0 support).
      *  TODO (trent, 12/25): Actually build-in support for WebGL 1.0. This is totally something that can be encapsulated in a single TODO.
      */

@@ -71,6 +71,14 @@ enum TonemapperType {
     }
 
     /**
+     * Renderer destruction method.
+     */
+    public dispose( ) : void {
+        // TODO (trent, 12/30): probably do more things here.
+        this.webglRenderer.dispose( );
+    }
+
+    /**
      * Renderer accessor.
      */
     public getRenderer( ) : THREE.WebGLRenderer {
