@@ -5,6 +5,7 @@ import { GUI } from 'lil-gui'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
 import Renderer from '../renderer/renderer'
+import Scene from '../renderer/scene'
 
 /**
  * Function interface for anything that should be ticked as part of the primary client loop.
@@ -22,7 +23,6 @@ export default class Client {
     /**
      * TEMPORARY MEMBERS: BEGIN.
      */
-    public static scene : THREE.Scene;
     public static camera : THREE.PerspectiveCamera;
 
     public static gui : GUI;
@@ -39,6 +39,7 @@ export default class Client {
 
     // Rendering data.
     public static renderer : Renderer;
+    public static scene : Scene;
 
     // Optional client elements.
     public static stats : Stats;
@@ -108,7 +109,7 @@ export default class Client {
      * Temp catch-all for other system setup.
      */
     public static initSystems_Temp( ) : void {
-        this.scene = new THREE.Scene( );
+        this.scene = new Scene( );
         this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );
 
         window.addEventListener( 'resize', ( ) => {
@@ -157,7 +158,7 @@ export default class Client {
         }
 
         // Render the current frame to the canvas.
-        this.renderer.renderFrame( this.scene, this.camera );
+        this.renderer.renderFrame( this.scene.getSceneGraph( ), this.camera );
 
         if( this.stats != null ) {
             // Update the stats component. If it exists.

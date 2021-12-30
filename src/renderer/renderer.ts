@@ -1,14 +1,46 @@
 import * as THREE from 'three'
-import { Color, WebGLRenderer, WebGLRenderTarget } from 'three';
-import { WEBGL } from 'three/examples/jsm/WebGL'
+import { Color, WebGLRenderTarget } from 'three';
+
+/**
+ * ShadowMapType Enumeration.
+ *  Wraps ThreeJS's shadow map type solutions; defaults to Variance Shadow Maps (VSM).
+ */
+enum ShadowMapType {
+    None,           // Shadowing disabled.
+    Minimal,        // Maps to THREE.BasicShadowMap.
+    PCF,            // Maps to THREE.PCFShadowMap.
+    PCFSoftShadows, // Maps to THREE.PCFSoftShadowMap.
+    VSM             // Maps to Three.VSMShadowMap.
+}
+
+/**
+ * TonemapperType Enumeration.
+ *  Wrapping and extending ThreeJS's tonemapping types.
+ *  See: https://64.github.io/tonemapping/
+ *  Also: http://filmicworlds.com/blog/filmic-tonemapping-with-piecewise-power-curves/
+ */
+enum TonemapperType {
+    None,           // Tonemapping disabled; maps roughly to THREE.NoToneMapping.
+    Linear,         // Linearly-mapped color values; maps roughly to THREE.LinearToneMapping.
+    Reinhard,       // Reinhard-based tonemapping implementation; maps roughly to THREE.ReinhardToneMapping. 
+    Cineon,         // Cineon-type logarithmic cinematic tonemapping; maps to THREE.CineonToneMapping.
+    ACES            // Default tonemapping solution; maps to THREE.ACESFilmicToneMapping. See: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+}
 
 /**
  * Renderer class definition.
- *  WebGL renderer bassed on ThreeJS; defaults to WebGL 2.0. 
- *  NOTE (trent, 12/28): Largely a wrapper over Three's renderer for the time being. Treating three's renderer as private (despite the accessor) as much as possible. Because it sounds prudent.
+ *  Renderer module for JoyGL built on ThreeJS's WebGL 2.0 renderer.
  */
  export default class Renderer {
+    // ThreeJS-based WebGL renderer; kept private but still accessible through getRenderer. Should be manipulated internally almost exclusively (in practice). 
     private webglRenderer : THREE.WebGLRenderer;
+
+    // Lighting.
+
+    private shadowMapType : ShadowMapType = ShadowMapType.VSM;  // NOTE: Overridden in the constructor through ::setShadowMapType; however VSM is the default solution.
+
+    // Postprocess.
+    // TODO (trent, 12/30): do.
 
     /**
      * Renderer initialiation method.
@@ -16,7 +48,7 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
      *  NOTE (trent, 12/27): https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices
      * @returns Initialization success/failure.
      */
-    public constructor( enableAntialiasing : boolean = false, enableShadowMap : boolean = true ) {
+    public constructor( enableAntialiasing : boolean = false, enableShadowing : boolean = true ) {
         // Initialize Three WebGL renderer and necessary settings. Some enumerated here just so I don't forget they exist.
         this.webglRenderer = new THREE.WebGLRenderer( {
             precision: 'highp',             // options: "highp", "mediump" or "lowp".
@@ -25,8 +57,8 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
             premultipliedAlpha: false,      // TODO (trent, 12/27): Revisit this setting.
             antialias: enableAntialiasing
         } );
-        this.webglRenderer.shadowMap.enabled = enableShadowMap;
-        this.webglRenderer.shadowMap.type = ( enableShadowMap ? THREE.VSMShadowMap : this.webglRenderer.shadowMap.type );
+
+        this.setShadowMapType( ( enableShadowing ) ? ShadowMapType.VSM : ShadowMapType.None );
 
         // Miscellaneous other settings.
         this.webglRenderer.setClearColor( new Color( 0.1, 0.1, 0.1 ), 1.0 );
@@ -117,6 +149,47 @@ import { WEBGL } from 'three/examples/jsm/WebGL'
      */
     public renderFrame( scene : THREE.Scene, camera : THREE.Camera ) : void {
         this.getRenderer( ).render( scene, camera );
+    }
+
+    /**
+     * Set the shadow mapping type.
+     * @param shadowMapType Type of shadow mapping to support (if any). Default is ShadowMapType.VSM.
+     */
+    public setShadowMapType( shadowMapType : ShadowMapType ) {
+        const wglRenderer = this.getRenderer( );
+
+        // Set the shadow map type (if any) and associated renderer data.
+        this.shadowMapType = shadowMapType;
+        wglRenderer.shadowMap.enabled = ( this.shadowMapType !== ShadowMapType.None );
+
+        switch( this.shadowMapType ) {
+            case ShadowMapType.PCF:
+                wglRenderer.shadowMap.type = THREE.PCFShadowMap;
+                break;
+            
+            case ShadowMapType.PCFSoftShadows:
+                wglRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                break;
+
+            case ShadowMapType.VSM:
+                wglRenderer.shadowMap.type = THREE.VSMShadowMap;
+                break;
+
+            case ShadowMapType.Minimal:
+            case ShadowMapType.None:
+                wglRenderer.shadowMap.type = THREE.BasicShadowMap;
+                break;
+        }
+
+        wglRenderer.shadowMap.needsUpdate = true;
+    }
+
+    /**
+     * Accessor to shadow map type.
+     * @returns Current ShadowMapType.
+     */
+    public getShadowMapType( ) : ShadowMapType {
+        return this.shadowMapType;
     }
 
     /**

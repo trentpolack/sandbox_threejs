@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
-import { Mesh } from 'three';
+import { Color, Mesh } from 'three';
 
 import Client from './client/client';
 
@@ -84,11 +84,17 @@ function init( ) {
     Client.scene.add( torusKnotMeshGeometry );
 
     {
-        const skylight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-        skylight.color.setHSL( 0.6, 1, 0.6 );
-        skylight.groundColor.setHSL( 0.095, 1, 0.75 );
-        skylight.position.set( 0, 50, 0 );
+        const axesHelper = new THREE.AxesHelper( 10.0 );
+        Client.scene.add( axesHelper );
+    }
+
+    {
+        const skylight = new THREE.HemisphereLight( new Color( 0.0, 0.24, 0.6 ), new Color( 0.75, 0.42, 0.0 ), 0.6 );
+        skylight.position.set( 0, 0, 0 );
         Client.scene.add( skylight );
+
+        const skylightHelper = new THREE.HemisphereLightHelper( skylight, 10.0 );
+        Client.scene.add( skylightHelper );
     }
 
     {
@@ -111,12 +117,6 @@ function init( ) {
         directionalLight_01.shadow.camera = new THREE.OrthographicCamera( -size, size, size, -size, 0.1, 3500.0 );
         directionalLight_01.shadow.bias = -0.0001;
         Client.scene.add( directionalLight_01 );
-    }
-    
-    {
-        const backlight = new THREE.DirectionalLight( 0xFFFFFF, 1.5 );
-        backlight.translateZ( -500.0 );
-        Client.scene.add( backlight );
     }
 
     // CAMERA!
