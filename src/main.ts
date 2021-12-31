@@ -7,6 +7,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Color, Mesh } from 'three';
 
 import Client from './client/client';
+import LightDirectional from './renderer/lightDirectional';
 
 // Test geometry.
 let torusKnotMeshGeometry : Mesh;
@@ -22,7 +23,7 @@ const torusKnotGeometryData = {
 };
 
 // Test lights.
-const directionalLight_01 : THREE.Light = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
+const directionalLight_01 : LightDirectional = new LightDirectional( new THREE.Color( 1.0, 1.0, 1.0 ), 1.0 );
 
 window.onload = ( ) => {
 	window.focus( );
@@ -99,24 +100,12 @@ function init( ) {
 
     {
         // SETUP TEMP LIGHTS.
-        directionalLight_01.name = "sun";
-        directionalLight_01.position.set( 1, 1, 1 );
-        directionalLight_01.castShadow = true;
-        directionalLight_01.shadow.mapSize.width = 512;
-        directionalLight_01.shadow.mapSize.height = 512;
-        directionalLight_01.shadow.radius = 4;
-        directionalLight_01.shadow.bias = - 0.0005;
+//      directionalLight_01.name = "sun";
+        directionalLight_01.getLightInstance( ).position.set( -1, 0.75, 1 );
+        directionalLight_01.getLightInstance( ).position.multiplyScalar( 25.0 );    // WHY IS THIS NECESSARY.
 
-        directionalLight_01.position.set( -1, 0.75, 1 );
-        directionalLight_01.position.multiplyScalar( 25.0 );
-
-        directionalLight_01.castShadow = true;
-        directionalLight_01.shadow.mapSize = new THREE.Vector2( 1024, 1024 );
-
-        const size = 300;
-        directionalLight_01.shadow.camera = new THREE.OrthographicCamera( -size, size, size, -size, 0.1, 3500.0 );
-        directionalLight_01.shadow.bias = -0.0001;
-        Client.scene.add( directionalLight_01 );
+        Client.scene.add( directionalLight_01.getLightInstance( ) );
+        directionalLight_01.enableDebugVisual( true );
     }
 
     // CAMERA!

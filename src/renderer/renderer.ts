@@ -16,15 +16,15 @@ enum ShadowMapType {
 /**
  * TonemapperType Enumeration.
  *  Wrapping and extending ThreeJS's tonemapping types.
- *  See: https://64.github.io/tonemapping/
- *  Also: http://filmicworlds.com/blog/filmic-tonemapping-with-piecewise-power-curves/
+ *  See: {@link https://64.github.io/tonemapping/|https://64.github.io/tonemapping/}
+ *  Also: {@link http://filmicworlds.com/blog/filmic-tonemapping-with-piecewise-power-curves/|http://filmicworlds.com/blog/filmic-tonemapping-with-piecewise-power-curves/}
  */
 enum TonemapperType {
     None,           // Tonemapping disabled; maps roughly to THREE.NoToneMapping.
     Linear,         // Linearly-mapped color values; maps roughly to THREE.LinearToneMapping.
     Reinhard,       // Reinhard-based tonemapping implementation; maps roughly to THREE.ReinhardToneMapping. 
     Cineon,         // Cineon-type logarithmic cinematic tonemapping; maps to THREE.CineonToneMapping.
-    ACES            // Default tonemapping solution; maps to THREE.ACESFilmicToneMapping. See: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+    ACES            // Default tonemapping solution; maps to THREE.ACESFilmicToneMapping. See: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve.
 }
 
 /**
@@ -45,7 +45,7 @@ enum TonemapperType {
     /**
      * Renderer initialiation method.
      *  TODO (trent, 12/27): Parameterize the renderer setup a bit better. Well. At all, really.
-     *  NOTE (trent, 12/27): https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices
+     *  NOTE (trent, 12/27): {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices|https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices}
      * @returns Initialization success/failure.
      */
     public constructor( enableAntialiasing : boolean = false, enableShadowing : boolean = true ) {
