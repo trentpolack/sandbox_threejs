@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import LightBase from './lightBase';
 
 // Default parameters for directional lights.
-const defaultLightDirectionalParameters = {
+const defaultLightDirectionalSettings = {
     rotation: new THREE.Euler( 0.0, 0.0, 0.0 ),
 
     // Shadow Parameters.
@@ -41,20 +41,20 @@ export default class LightDirectional extends LightBase {
         const light = new THREE.DirectionalLight( );
 
         // Set default parameters.
-        light.setRotationFromEuler( defaultLightDirectionalParameters.rotation );
+        light.setRotationFromEuler( defaultLightDirectionalSettings.rotation );
 
-        light.castShadow = defaultLightDirectionalParameters.castShadow;
-        light.shadow.autoUpdate = defaultLightDirectionalParameters.shadowAutoUpdate;
+        light.castShadow = defaultLightDirectionalSettings.castShadow;
+        light.shadow.autoUpdate = defaultLightDirectionalSettings.shadowAutoUpdate;
 
-        light.shadow.mapSize = defaultLightDirectionalParameters.shadowMapSize;
-        light.shadow.bias = defaultLightDirectionalParameters.shadowBias;
-        light.shadow.normalBias = defaultLightDirectionalParameters.shadowNormalBias;
+        light.shadow.mapSize = defaultLightDirectionalSettings.shadowMapSize;
+        light.shadow.bias = defaultLightDirectionalSettings.shadowBias;
+        light.shadow.normalBias = defaultLightDirectionalSettings.shadowNormalBias;
 
-        light.shadow.radius = defaultLightDirectionalParameters.shadowBlurRadius;
-        light.shadow.blurSamples = defaultLightDirectionalParameters.shadowBlurSamples;
+        light.shadow.radius = defaultLightDirectionalSettings.shadowBlurRadius;
+        light.shadow.blurSamples = defaultLightDirectionalSettings.shadowBlurSamples;
 
-        const d = defaultLightDirectionalParameters.shadowFrustumSize;
-        light.shadow.camera = new THREE.OrthographicCamera( -d, d, d, -d, defaultLightDirectionalParameters.shadowNearPlane, defaultLightDirectionalParameters.shadowFarPlane );
+        const d = defaultLightDirectionalSettings.shadowFrustumSize;
+        light.shadow.camera = new THREE.OrthographicCamera( -d, d, d, -d, defaultLightDirectionalSettings.shadowNearPlane, defaultLightDirectionalSettings.shadowFarPlane );
 
         return light;
     }
@@ -62,7 +62,7 @@ export default class LightDirectional extends LightBase {
     /**
      * Enable/disable a directional light debug visualizer.
      * @param enable Set the state of the debug visualizer.
-     * @return Enable state of the debug visualizer.
+     * @return Updated state of the debug visualizer.
      */
     public enableDebugVisual( enable : boolean ) : boolean {
         if( !enable ) {
@@ -82,7 +82,7 @@ export default class LightDirectional extends LightBase {
         }
 
         // Enable the debug visualizer by, you know, creating it.
-        this.debugVisualizer = new THREE.DirectionalLightHelper( this.getLightInstance( ) as THREE.DirectionalLight , defaultLightDirectionalParameters.debugVisualizerSize );
+        this.debugVisualizer = new THREE.DirectionalLightHelper( this.getLightInstance( ) as THREE.DirectionalLight , defaultLightDirectionalSettings.debugVisualizerSize );
         
         {
             // TODO (trent, 12/31/21): Fix the assumptions here and get any scene manipulation out of here.

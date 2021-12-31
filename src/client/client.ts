@@ -126,6 +126,8 @@ export default class Client {
 
             Renderer.onWindowResize( this.renderer );
         } );
+
+        this.scene.enableDebugVisual( true );
     }
 
     /**

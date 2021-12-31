@@ -1,5 +1,11 @@
 import * as THREE from 'three'
 
+// Default parameters for directional lights.
+const defaultSceneSettings = {
+    // Debug Visualizer.
+    debugVisualizerSize: 10.0
+}
+
 /**
  * Scene class definition.
  *  Scene graph (geometry, lights, etc.); wraps and extends the informal ThreeJS scene implementation.
@@ -8,6 +14,9 @@ import * as THREE from 'three'
  export default class Scene {
     // Base scene member; Three's Scene implementation is, basically, just support for fog, background, and environment map over its core Object3D object hierarchy.
     private sceneGraph : THREE.Scene;
+
+    // Debug visualizer. "Disabled" (null) by default.
+    protected debugVisualizer : THREE.AxesHelper | null = null;
 
     /**
      * Scene class constructor; minimal shenanigans.
@@ -40,5 +49,34 @@ import * as THREE from 'three'
      */
     public getSceneGraph( ) : THREE.Scene {
         return this.sceneGraph;
+    }
+
+    /**
+     * Enable/disable a directional scene axes debug visualizer.
+     * @param enable Set the state of the debug visualizer.
+     * @return Updated state of the debug visualizer.
+     */
+     public enableDebugVisual( enable : boolean ) : boolean {
+        if( !enable ) {
+            // Disable and, if necessary, dispose of the visualizer.
+            if( this.debugVisualizer !== null ) {
+                // Dispose of the visualizer.
+                this.getSceneGraph( ).remove( this.debugVisualizer );
+
+                this.debugVisualizer.dispose( );
+                this.debugVisualizer = null;
+            }
+
+            return false;
+        } else if( enable && ( this.debugVisualizer !== null ) ) {
+            // Enabled and it already exists, so: job done.
+            return true;
+        }
+
+        // Enable the debug visualizer by, you know, creating it.
+        this.debugVisualizer = new THREE.AxesHelper( defaultSceneSettings.debugVisualizerSize );
+        this.getSceneGraph( ).add( this.debugVisualizer );
+
+        return true;
     }
 }
