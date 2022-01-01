@@ -1,9 +1,11 @@
 import * as THREE from 'three'
+import { Vector3 } from 'three';
 import LightBase from './lightBase';
 
 // Default parameters for directional lights.
 const defaultLightDirectionalSettings = {
-    rotation: new THREE.Euler( 0.0, 0.0, 0.0 ),
+    distance: 1000.0,           // Light distance from the target. NOTE (trent, 12/31/21): this shouldn't be necessary but ThreeJS's directional light is a "targeted light".
+    direction: new THREE.Vector3( 0.0, -1.0, 0.0 ),
 
     // Shadow Parameters.
     castShadow: true,           // Ignored if the renderer is specified to not use shadow maps.
@@ -26,10 +28,18 @@ const defaultLightDirectionalSettings = {
 
 /**
  * LightDirectional Class Definition.
- *  Directional light implementation; implem
- * 
+ *  Directional light implementation that treats ThreeJS's directional light like a traditional directional light (position-independent, defined by orientation). 
  */
 export default class LightDirectional extends LightBase {
+    // Constants.
+    private static readonly kLightDirectionalTypeName : string = "lightDirectional";
+
+    // Directional light parameters.
+    protected distance : number = defaultLightDirectionalSettings.distance;
+    protected direction : THREE.Vector3 = defaultLightDirectionalSettings.direction;
+
+    protected targetObject : THREE.Object3D | null = null;  // This should always be the origin.
+
     // Debug visualizer. "Disabled" (null) by default.
     protected debugVisualizer : THREE.DirectionalLightHelper | null = null;
 
@@ -40,9 +50,7 @@ export default class LightDirectional extends LightBase {
     protected createLight( ) : THREE.Light {
         const light = new THREE.DirectionalLight( );
 
-        // Set default parameters.
-        light.setRotationFromEuler( defaultLightDirectionalSettings.rotation );
-
+        // Set default parameters on the ThreeJS light.
         light.castShadow = defaultLightDirectionalSettings.castShadow;
         light.shadow.autoUpdate = defaultLightDirectionalSettings.shadowAutoUpdate;
 
@@ -57,6 +65,20 @@ export default class LightDirectional extends LightBase {
         light.shadow.camera = new THREE.OrthographicCamera( -d, d, d, -d, defaultLightDirectionalSettings.shadowNearPlane, defaultLightDirectionalSettings.shadowFarPlane );
 
         return light;
+    }
+
+    /**
+     * Set the light facing based on the light direction (as euler orientation); this technically just sets the light position in respect to a target point (origin) as ThreeJS does not respect directional light rotation.
+     * @param orientation Euler light orientation. 
+     */
+    public setLightFacing( direction : THREE.Vector3, targetObject? : THREE.Object3D ) : void {
+        // ThreeJS treats directional light facing as position with respect to a target point.
+        this.direction = direction.normalize( );
+        this.targetObject = ( ( targetObject !== undefined ) && ( targetObject !== null ) ) ? targetObject : this.targetObject;
+
+        // Update properties in the light instance.
+        const light : THREE.DirectionalLight = this.getLightInstance( ) as THREE.DirectionalLight;
+        light.position.copy( this.direction.clone( ).multiplyScalar( this.distance ) );
     }
 
     /**
@@ -83,7 +105,7 @@ export default class LightDirectional extends LightBase {
 
         // Enable the debug visualizer by, you know, creating it.
         this.debugVisualizer = new THREE.DirectionalLightHelper( this.getLightInstance( ) as THREE.DirectionalLight , defaultLightDirectionalSettings.debugVisualizerSize );
-        
+
         {
             // TODO (trent, 12/31/21): Fix the assumptions here and get any scene manipulation out of here.
             const parent = this.getLightInstance( ).parent;

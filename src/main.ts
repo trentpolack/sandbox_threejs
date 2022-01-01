@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
-import { Color, Mesh } from 'three';
+import { Color, Mesh, Vector3 } from 'three';
 
 import Client from './client/client';
 import LightDirectional from './renderer/lightDirectional';
@@ -101,8 +101,7 @@ function init( ) {
     {
         // SETUP TEMP LIGHTS.
 //      directionalLight_01.name = "sun";
-        directionalLight_01.getLightInstance( ).position.set( -1, 0.75, 1 );
-        directionalLight_01.getLightInstance( ).position.multiplyScalar( 25.0 );    // WHY IS THIS NECESSARY.
+        directionalLight_01.setLightFacing( new Vector3( -1.0, 0.75, 1.0 ) );
 
         Client.scene.add( directionalLight_01.getLightInstance( ) );
         directionalLight_01.enableDebugVisual( true );

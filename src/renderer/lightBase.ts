@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { Color } from 'three';
 
 /**
  * LightBase Abstract Class Definition.
@@ -15,8 +14,13 @@ export default abstract class LightBase {
 
     // Static members.
     //  Automated naming.
-    private static lightNameBase = "rawr";
-    private static lightNameCounter = 0;
+    protected static lightTypeCounters = {
+        pointLightCount: 0,
+        spotLightCount: 0,
+        rectLightCount: 0,
+        directionaLightCount: 0,
+        directionalAtmosphereLightCount: 0  // Also counts towards directional light count.
+    }
 
     /**
      * Constructor.
@@ -24,10 +28,9 @@ export default abstract class LightBase {
      * @param color Light color. Preferably specified as RGB ([0,1]).
      * @param intensity Light intensity; unit depends on type of light. Generally, Directional Light (lux), Sky Lights (cd/m2), and Point/Spot/Rect Lights (lumens).
      */
-    public constructor( color : Color, intensity : number) {
+    public constructor( color : THREE.Color, intensity : number ) {
         // Initialize the ThreeJS light instance through the abstract ::createLight method.
         this.lightInstance = this.createLight( );
-        this.lightInstance.name = LightBase.lightNameBase.concat( '-', ( ++LightBase.lightNameCounter ).toString( ) );
 
         this.setColor( color );
         this.setIntensity( intensity );
@@ -51,7 +54,7 @@ export default abstract class LightBase {
      * Set the light color; preferably this is specified using RGB values in the [0,1] range.
      * @param color - Light color.
      */
-    public setColor( color : Color ) : void {
+    public setColor( color : THREE.Color ) : void {
         this.getLightInstance( ).color = color;
     }
 
@@ -59,7 +62,7 @@ export default abstract class LightBase {
      * Get the light color.
      * @returns Light color.
      */
-    public getColor( ) : Color {
+    public getColor( ) : THREE.Color {
         return( this.getLightInstance( ).color );
     }
 
