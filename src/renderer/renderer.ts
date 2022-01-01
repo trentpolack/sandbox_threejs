@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Color, WebGLRenderTarget } from 'three';
+import { Color } from 'three';
 
 /**
  * ShadowMapType Enumeration.
@@ -132,7 +132,7 @@ enum TonemapperType {
      * Set the specified target for the renderer. 
      * @param renderTarget The render target; if null then the renderer targets the canvas.
      */
-    public setRenderTarget( renderTarget : WebGLRenderTarget | null ) {
+    public setRenderTarget( renderTarget : THREE.WebGLRenderTarget | null ) {
         this.getRenderer( ).setRenderTarget( renderTarget );
     }
 
@@ -140,7 +140,7 @@ enum TonemapperType {
      * Get the renderer's current render target.
      * @returns Returns the current render target; if null is returned, the canvas is the active target.
      */
-    public getRenderTarget( ) : WebGLRenderTarget | null {
+    public getRenderTarget( ) : THREE.WebGLRenderTarget | null {
         return( this.getRenderer( ).getRenderTarget( ) );
     }
 

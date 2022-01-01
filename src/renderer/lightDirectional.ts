@@ -50,6 +50,10 @@ export default class LightDirectional extends LightBase {
     protected createLight( ) : THREE.Light {
         const light = new THREE.DirectionalLight( );
 
+        // Set the name based on light type and current count.
+        ++LightBase.lightTypeCounters.directionalAtmosphereLightCount;
+        light.name = LightDirectional.kLightDirectionalTypeName.concat( '-', LightBase.lightTypeCounters.directionaLightCount.toString( ) );
+
         // Set default parameters on the ThreeJS light.
         light.castShadow = defaultLightDirectionalSettings.castShadow;
         light.shadow.autoUpdate = defaultLightDirectionalSettings.shadowAutoUpdate;
