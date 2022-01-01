@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { Vector3 } from 'three';
 import LightBase from './lightBase';
 
 // Default parameters for directional lights.

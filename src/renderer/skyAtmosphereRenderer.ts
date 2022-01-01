@@ -6,4 +6,5 @@ import * as THREE from 'three'
  *  This class directly creates and manages a skylight (hemisphere light).
  */
 export default class SkyAtmosphereRenderer {
+    
 }
