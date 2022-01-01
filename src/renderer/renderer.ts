@@ -43,7 +43,7 @@ enum TonemapperType {
     // TODO (trent, 12/30): do.
 
     /**
-     * Renderer initialiation method.
+     * Renderer constructor.
      *  TODO (trent, 12/27): Parameterize the renderer setup a bit better. Well. At all, really.
      *  NOTE (trent, 12/27): {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices|https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices}
      * @returns Initialization success/failure.

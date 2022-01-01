@@ -1,7 +1,5 @@
 import * as THREE from 'three'
 
-var shader = require('../glsl/fragment.glsl');
-
 /**
  * LightBase Abstract Class Definition.
  *  Abstract base class for all JGL lights. Intended to unify physical lighting use, parameters, and shadow settings.

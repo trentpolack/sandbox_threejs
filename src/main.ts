@@ -8,6 +8,7 @@ import { Color, Mesh, Vector3 } from 'three';
 
 import Client from './client/client';
 import LightDirectional from './renderer/lightDirectional';
+import SkyAtmosphereRenderer from './renderer/skyAtmosphereRenderer';
 
 // Test geometry.
 let torusKnotMeshGeometry : Mesh;
@@ -113,7 +114,7 @@ function init( ) {
 
     // SETUP THE BUNNY.
     const fbxLoader = new FBXLoader( );
-    fbxLoader.load( 'content/meshes/misc/sm_stanford_bunny_02.fbx', function( obj ) {
+    fbxLoader.load( 'content/meshes/misc/sm_stanford_bunny_01.fbx', function( obj ) {
         bunnyMeshGroup.group = obj;
         bunnyMeshGroup.group.traverse( function( child ) {
             if( ( child as THREE.Mesh ).isMesh ) {
@@ -128,6 +129,12 @@ function init( ) {
         bunnyMeshGroup.group.scale.set( 0.1, 0.1, 0.1 );
         Client.scene.add( obj );
     } );
+
+    {
+        const atmosphereRenderer : SkyAtmosphereRenderer = new SkyAtmosphereRenderer( );
+
+        Client.scene.add( atmosphereRenderer.getSkyDome( ) );
+    }
 
     /**
      * Temp UI Setup.
