@@ -19,7 +19,6 @@ export default abstract class LightBase {
         spotLightCount: 0,
         rectLightCount: 0,
         directionaLightCount: 0,
-        directionalAtmosphereLightCount: 0  // Also counts towards directional light count.
     }
 
     /**

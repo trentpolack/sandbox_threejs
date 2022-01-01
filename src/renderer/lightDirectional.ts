@@ -51,7 +51,7 @@ export default class LightDirectional extends LightBase {
         const light = new THREE.DirectionalLight( );
 
         // Set the name based on light type and current count.
-        ++LightBase.lightTypeCounters.directionalAtmosphereLightCount;
+        ++LightBase.lightTypeCounters.directionaLightCount;
         light.name = LightDirectional.kLightDirectionalTypeName.concat( '-', LightBase.lightTypeCounters.directionaLightCount.toString( ) );
 
         // Set default parameters on the ThreeJS light.
