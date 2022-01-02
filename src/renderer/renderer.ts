@@ -1,5 +1,7 @@
 import * as THREE from 'three'
-import { Color } from 'three';
+
+import SceneGraph from './sceneGraph';
+import SkyAtmosphereRenderer from './skyAtmosphereRenderer';
 
 /**
  * ShadowMapType Enumeration.
@@ -35,7 +37,11 @@ enum TonemapperType {
     // ThreeJS-based WebGL renderer; kept private but still accessible through getRenderer. Should be manipulated internally almost exclusively (in practice). 
     private webglRenderer : THREE.WebGLRenderer;
 
+    // Scene Graph.
+    private sceneGraph : SceneGraph;
+
     // Lighting.
+    private skyRenderer : SkyAtmosphereRenderer | null = null;
 
     private shadowMapType : ShadowMapType = ShadowMapType.VSM;  // NOTE: Overridden in the constructor through ::setShadowMapType; however VSM is the default solution.
 
@@ -48,7 +54,7 @@ enum TonemapperType {
      *  NOTE (trent, 12/27): {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices|https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices}
      * @returns Initialization success/failure.
      */
-    public constructor( enableAntialiasing : boolean = false, enableShadowing : boolean = true ) {
+    public constructor( enableAntialiasing : boolean = false, enableShadowing : boolean = true, enableAtmospherics : boolean = false ) {
         // Initialize Three WebGL renderer and necessary settings. Some enumerated here just so I don't forget they exist.
         this.webglRenderer = new THREE.WebGLRenderer( {
             precision: 'highp',             // options: "highp", "mediump" or "lowp".
@@ -61,13 +67,19 @@ enum TonemapperType {
         this.setShadowMapType( ( enableShadowing ) ? ShadowMapType.VSM : ShadowMapType.None );
 
         // Miscellaneous other settings.
-        this.webglRenderer.setClearColor( new Color( 0.1, 0.1, 0.1 ), 1.0 );
+        this.webglRenderer.setClearColor( new THREE.Color( 0.1, 0.1, 0.1 ), 1.0 );
 
         this.webglRenderer.setPixelRatio( 1.0 );
 
     //  physicallyCorrectLights: false
     //  toneMapping: THREE.NoToneMapping
     //  toneMappingExposure: 1.0
+
+        // Scene Graph setup.
+        this.sceneGraph = new SceneGraph( );
+
+        // Setup the skylight, skydome, and atmospherics if desired.
+        this.enableAtmospherics( enableAtmospherics );
     }
 
     /**
@@ -153,10 +165,17 @@ enum TonemapperType {
 
     /**
      * Render the current scene.
-     *  TODO (trent, 12/28): THREE.Scene should be replaced by a wrapped object as, otherwise, THREE.Scene can also be renderered through the generic render method.
      */
-    public renderFrame( scene : THREE.Scene, camera : THREE.Camera ) : void {
-        this.getRenderer( ).render( scene, camera );
+    public renderFrame( camera : THREE.Camera ) : void {
+        this.getRenderer( ).render( this.sceneGraph.getScene( ), camera );
+    }
+
+    /**
+     * Return the scene graph for adding/removing/modifying objects.
+     * @returns Scene graph object.
+     */
+    public getSceneGraph( ) : SceneGraph {
+        return this.sceneGraph;
     }
 
     /**
@@ -201,6 +220,46 @@ enum TonemapperType {
     }
 
     /**
+     * Setup the sky and atmospherics rendering "component".
+     *  TODO (trent, 1/2/22): Should make this into more of a component; feels odd as a first-class renderer feature. This is probably already noted in multiple spots.
+     *  TODO (trent, 1/2/22): A) Don't use this as cheap atmospherics, B) but until I do that, at least handle ThreeJS's fog handling better.
+     * @param enableAtmospherics Enable/disable the sky and atmospherics rendering.
+     * @returns Resulting state of the atmospherics renderer.
+     */
+    public enableAtmospherics( enableAtmospherics : boolean ) : boolean {
+        if( !enableAtmospherics ) {
+            if( this.skyRenderer !== null ) {
+                // Remove the sky dome and dispose of the renderer.
+                this.getSceneGraph( ).remove( this.skyRenderer.getRoot( ) );
+                this.skyRenderer.dispose( );
+                this.skyRenderer = null;
+
+                {
+                    // Null out scene fog.
+                    this.getSceneGraph( ).getScene( ).fog = null;
+                }
+            }
+
+            return false;
+        } else if( enableAtmospherics && this.skyRenderer === null ) {
+            this.skyRenderer = new SkyAtmosphereRenderer( );
+            this.getSceneGraph( ).add( this.skyRenderer.getRoot( ) );
+
+            {
+                const scene = this.getSceneGraph( ).getScene( );
+                scene.fog = new THREE.FogExp2( 1.0, this.skyRenderer.fogDensity );
+                scene.fog.color = this.skyRenderer?.getSkylight( ).getGroundColor( );
+            }
+        }
+
+        return( this.skyRenderer !== null );
+    }
+
+    /*****
+     * Debug Methods.
+     **/
+
+    /**
      * Method to gather and print render stats.
      *  TODO (trent, 12/28): Expand range of profiling/visualization of render stats... "Some day".
      */
@@ -219,9 +278,12 @@ enum TonemapperType {
         
         // Log program object directly for further inspection.
         console.log( renderInfo.programs );
+
+        // TODO (trent, 1/2/22): Implement a better scene graph debug visualization or... something. But for now this works.
+        console.log( this.sceneGraph.getScene( ).toJSON( ) );
     }
 
-    /**
+    /*****
      * Static Methods. 
      **/
 

@@ -8,7 +8,7 @@ import { Color, Mesh, Vector3 } from 'three';
 
 import Client from './client/client';
 import LightDirectional from './renderer/lightDirectional';
-import SkyAtmosphereRenderer from './renderer/skyAtmosphereRenderer';
+import SceneGraph from './renderer/sceneGraph';
 
 // Test geometry.
 let torusKnotMeshGeometry : Mesh;
@@ -24,7 +24,7 @@ const torusKnotGeometryData = {
 };
 
 // Test lights.
-const directionalLight_01 : LightDirectional = new LightDirectional( new THREE.Color( 1.0, 1.0, 1.0 ), 1.0 );
+const directionalLight_01 : LightDirectional = new LightDirectional( );
 
 window.onload = ( ) => {
 	window.focus( );
@@ -58,6 +58,7 @@ function init( ) {
     /**
      * NOTE (trent, 12/26): Temp code while moving bits around.
      */
+    const sceneGraphRef : SceneGraph = Client.getSceneGraph( );
 
     {
         // Setup ground plane.
@@ -66,11 +67,12 @@ function init( ) {
 
         const groundGeo = new THREE.PlaneGeometry( 1000.0, 1000.0 );
         const groundMesh = new THREE.Mesh( groundGeo, groundMaterial );
+        groundMesh.name = 'groundPlane';
         groundMesh.rotateX( Math.PI*1.5 );
         groundMesh.translateZ( -25.0 );
         groundMesh.receiveShadow = true;
 
-        Client.scene.add( groundMesh );
+        Client.getSceneGraph( ).add( groundMesh );
     }
     
     // SETUP TEMP MATERIAL AND GEO.
@@ -83,28 +85,17 @@ function init( ) {
     // Add the actual mesh geometry to the scene.
     torusKnotMeshGeometry = new THREE.Mesh( new THREE.TorusKnotGeometry( torusKnotGeometryData.radius, torusKnotGeometryData.tube, torusKnotGeometryData.tubularSegments, torusKnotGeometryData.radialSegments, torusKnotGeometryData.p, torusKnotGeometryData.q ), material );
     torusKnotMeshGeometry.castShadow = true;
-    Client.scene.add( torusKnotMeshGeometry );
-
-    {
-        const axesHelper = new THREE.AxesHelper( 10.0 );
-        Client.scene.add( axesHelper );
-    }
-
-    {
-        const skylight = new THREE.HemisphereLight( new Color( 0.0, 0.24, 0.6 ), new Color( 0.75, 0.42, 0.0 ), 0.6 );
-        skylight.position.set( 0, 0, 0 );
-        Client.scene.add( skylight );
-
-        const skylightHelper = new THREE.HemisphereLightHelper( skylight, 10.0 );
-        Client.scene.add( skylightHelper );
-    }
+    torusKnotMeshGeometry.name = 'torusKnot';
+    sceneGraphRef.add( torusKnotMeshGeometry );
 
     {
         // SETUP TEMP LIGHTS.
 //      directionalLight_01.name = "sun";
+        directionalLight_01.setColor( new Color( 1.0, 1.0, 1.0 ) );
+        directionalLight_01.setIntensity( 1.0 );
         directionalLight_01.setLightFacing( new Vector3( -1.0, 0.75, 1.0 ) );
 
-        Client.scene.add( directionalLight_01.getLightInstance( ) );
+        sceneGraphRef.add( directionalLight_01.getLightInstance( ) );
         directionalLight_01.enableDebugVisual( true );
     }
 
@@ -127,14 +118,8 @@ function init( ) {
                 }
             } )
         bunnyMeshGroup.group.scale.set( 0.1, 0.1, 0.1 );
-        Client.scene.add( obj );
+        sceneGraphRef.add( obj );
     } );
-
-    {
-        const atmosphereRenderer : SkyAtmosphereRenderer = new SkyAtmosphereRenderer( );
-
-        Client.scene.add( atmosphereRenderer.getSkyDome( ) );
-    }
 
     /**
      * Temp UI Setup.

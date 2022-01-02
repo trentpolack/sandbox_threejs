@@ -5,7 +5,7 @@ import { GUI } from 'lil-gui'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
 import Renderer from '../renderer/renderer'
-import Scene from '../renderer/scene'
+import SceneGraph from '../renderer/sceneGraph'
 
 /**
  * Function interface for anything that should be ticked as part of the primary client loop.
@@ -39,7 +39,6 @@ export default class Client {
 
     // Rendering data.
     public static renderer : Renderer;
-    public static scene : Scene;
 
     // Optional client elements.
     public static stats : Stats;
@@ -73,7 +72,7 @@ export default class Client {
 
         {
             // Renderer setup.
-            this.renderer = new Renderer( false, true );
+            this.renderer = new Renderer( false, true, true );
             this.renderer.setSize( window.innerWidth, window.innerHeight );
 
             this.canvas.appendChild( this.renderer.getDomElement( ) );
@@ -117,8 +116,7 @@ export default class Client {
      * Temp catch-all for other system setup.
      */
     public static initSystems_Temp( ) : void {
-        this.scene = new Scene( );
-        this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 1000.0 );
+        this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 5000.0 );
 
         window.addEventListener( 'resize', ( ) => {
             this.camera.aspect = window.innerWidth/window.innerHeight;
@@ -126,8 +124,6 @@ export default class Client {
 
             Renderer.onWindowResize( this.renderer );
         } );
-
-        this.scene.enableDebugVisual( true );
     }
 
     /**
@@ -168,7 +164,7 @@ export default class Client {
         }
 
         // Render the current frame to the canvas.
-        this.renderer.renderFrame( this.scene.getSceneGraph( ), this.camera );
+        this.renderer.renderFrame( this.camera );
 
         if( this.stats != null ) {
             // Update the stats component. If it exists.
@@ -186,5 +182,13 @@ export default class Client {
      */
     public static getClientCanvas( ) : HTMLElement {
         return this.canvas;
+    }
+
+    /**
+     * Accessor for the renderer's scene graph instance (removing friction for the actual accessor from an app).
+     * @returns Instance of client scene graph.
+     */
+    public static getSceneGraph( ) : SceneGraph {
+        return( this.renderer.getSceneGraph( ) );
     }
 }

@@ -19,6 +19,7 @@ export default abstract class LightBase {
         spotLightCount: 0,
         rectLightCount: 0,
         directionaLightCount: 0,
+        hemisphereLightCount: 0
     }
 
     /**
@@ -27,12 +28,11 @@ export default abstract class LightBase {
      * @param color Light color. Preferably specified as RGB ([0,1]).
      * @param intensity Light intensity; unit depends on type of light. Generally, Directional Light (lux), Sky Lights (cd/m2), and Point/Spot/Rect Lights (lumens).
      */
-    public constructor( color : THREE.Color = new THREE.Color( 1.0, 1.0, 1.0 ), intensity : number = 1.0 ) {
+    public constructor( ) {
         // Initialize the ThreeJS light instance through the abstract ::createLight method.
         this.lightInstance = this.createLight( );
 
-        this.setColor( color );
-        this.setIntensity( intensity );
+        this.setIntensity( 1.0 );
     }
 
     /**
@@ -40,6 +40,13 @@ export default abstract class LightBase {
      * @returns The created light.
      */
     protected abstract createLight( ) : THREE.Light;
+
+    /**
+     * Disposal method.
+     */
+    public dispose( ) : void {
+        this.lightInstance.dispose( );
+    }
 
     /**
      * Accessor for the ThreeJS light object instance.

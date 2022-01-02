@@ -3,6 +3,8 @@ import LightBase from './lightBase';
 
 // Default parameters for directional lights.
 const defaultLightDirectionalSettings = {
+    color: new THREE.Color( 1.0, 1.0, 1.0 ),
+
     distance: 1000.0,           // Light distance from the target. NOTE (trent, 12/31/21): this shouldn't be necessary but ThreeJS's directional light is a "targeted light".
     direction: new THREE.Vector3( 0.0, -1.0, 0.0 ),
 
@@ -34,6 +36,8 @@ export default class LightDirectional extends LightBase {
     private static readonly kLightDirectionalTypeName : string = "lightDirectional";
 
     // Directional light parameters.
+    protected color : THREE.Color = defaultLightDirectionalSettings.color;
+
     protected distance : number = defaultLightDirectionalSettings.distance;
     protected direction : THREE.Vector3 = defaultLightDirectionalSettings.direction;
 
@@ -108,6 +112,7 @@ export default class LightDirectional extends LightBase {
 
         // Enable the debug visualizer by, you know, creating it.
         this.debugVisualizer = new THREE.DirectionalLightHelper( this.getLightInstance( ) as THREE.DirectionalLight , defaultLightDirectionalSettings.debugVisualizerSize );
+        this.debugVisualizer.name = this.getLightInstance( ).name.concat( '-helper' );
 
         {
             // TODO (trent, 12/31/21): Fix the assumptions here and get any scene manipulation out of here.
