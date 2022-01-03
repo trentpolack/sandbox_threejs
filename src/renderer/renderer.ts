@@ -250,6 +250,8 @@ enum TonemapperType {
                 scene.fog = new THREE.FogExp2( 1.0, this.skyRenderer.fogDensity );
                 scene.fog.color = this.skyRenderer?.getSkylight( ).getGroundColor( );
             }
+
+            this.skyRenderer.getSkylight( ).enableDebugVisual( true );
         }
 
         return( this.skyRenderer !== null );

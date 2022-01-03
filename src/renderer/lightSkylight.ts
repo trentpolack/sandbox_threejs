@@ -1,12 +1,11 @@
 import * as THREE from 'three'
-import { HemisphereLight } from 'three';
 import LightBase from './lightBase';
 
 // Default parameters for directional lights.
 const defaultLightSkylightSettings = {
     // Colors.
-    skyColor: new THREE.Color( 0.0, 0.24, 0.6 ),
-    groundColor: new THREE.Color( 0.75, 0.42, 0.0 ),
+    skyColor: new THREE.Color( 0.26, 0.52, 0.94 ),
+    groundColor: new THREE.Color( 0.9, 0.7, 0.36 ),
 
     // Debug Visualizer.
     debugVisualizerSize: 10.0
@@ -19,9 +18,6 @@ const defaultLightSkylightSettings = {
 export default class LightSkylight extends LightBase {
     // Constants.
     private static readonly kLightSkylightTypeName : string = "lightSkylight";
-
-    // Skylight parameters.
-    protected groundColor : THREE.Color = defaultLightSkylightSettings.groundColor;
 
     // Debug visualizer. "Disabled" (null) by default.
     protected debugVisualizer : THREE.HemisphereLightHelper | null = null;
@@ -65,8 +61,7 @@ export default class LightSkylight extends LightBase {
      * @param color - Ground light color.
      */
     public setGroundColor( groundColor : THREE.Color ) : void {
-        this.groundColor = groundColor;
-        ( this.getLightInstance( ) as HemisphereLight ).groundColor = this.groundColor;
+        ( this.getLightInstance( ) as THREE.HemisphereLight ).groundColor = groundColor;
     }
 
     /**
@@ -74,7 +69,7 @@ export default class LightSkylight extends LightBase {
      * @returns Ground light color.
      */
     public getGroundColor( ) : THREE.Color {
-        return( this.getLightInstance( ).color );
+        return( ( this.getLightInstance( ) as THREE.HemisphereLight ).groundColor );
     }
 
     /**
@@ -100,7 +95,7 @@ export default class LightSkylight extends LightBase {
         }
 
         // Enable the debug visualizer by, you know, creating it.
-        this.debugVisualizer = new THREE.HemisphereLightHelper( this.getLightInstance( ) as HemisphereLight, defaultLightSkylightSettings.debugVisualizerSize );
+        this.debugVisualizer = new THREE.HemisphereLightHelper( this.getLightInstance( ) as THREE.HemisphereLight, defaultLightSkylightSettings.debugVisualizerSize );
 
         {
             // TODO (trent, 12/31/21): Fix the assumptions here and get any scene manipulation out of here.

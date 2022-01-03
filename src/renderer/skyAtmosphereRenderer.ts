@@ -41,15 +41,11 @@ export default class SkyAtmosphereRenderer {
     public constructor( ) {
         // Setup the skylight.
         this.skylight = new LightSkylight( );
-        this.skylight.setSkyColor( new THREE.Color( 0.0, 0.24, 0.6 ) );
-        this.skylight.setGroundColor( new THREE.Color( 0.75, 0.42, 0.0 ) );
 
         // Setup the sky dome.
         this.skyDome = this.setupSkyDome( );
-//        this.skyDome.uniforms[ "topColor" ].value.copy( this.skylight.getSkyColor( ) );
-//        this.skyDome.uniforms[ "bottomColor" ].value.copy( this.skylight.getGroundColor( ) );
-//        this.skyDome.material.needsUpdate = true;
-        console.log( this.skyDome.uniforms );
+        this.skyDome.uniforms[ 'topColor' ].value = this.skylight.getSkyColor( );
+        this.skyDome.uniforms[ 'bottomColor' ].value = this.skylight.getGroundColor( );
 
         // Create a root scene object and group the light and dome into it.
         this.root = new THREE.Object3D( );
@@ -70,7 +66,7 @@ export default class SkyAtmosphereRenderer {
         const uniforms = {
             "topColor": { value: new THREE.Color( 0x0077ff ) },
             "bottomColor": { value: new THREE.Color( 0xffffff ) },
-            "offset": { value: 33 },
+            "offset": { value: 75 },
             "exponent": { value: 0.6 }            
         }
 
