@@ -9,6 +9,7 @@ uniform float offset;
 uniform float exponent;
 
 varying vec3 vWorldPosition;
+varying float vFogDepth;
 
 void main( ) {
     float h = normalize( vWorldPosition + offset ).y;

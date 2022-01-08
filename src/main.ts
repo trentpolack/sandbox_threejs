@@ -65,7 +65,7 @@ function init( ) {
         const groundMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff } );
         groundMaterial.color.setHSL( 0.095, 1, 0.75 );
 
-        const groundGeo = new THREE.PlaneGeometry( 1000.0, 1000.0 );
+        const groundGeo = new THREE.PlaneGeometry( 10000.0, 10000.0 );
         const groundMesh = new THREE.Mesh( groundGeo, groundMaterial );
         groundMesh.name = 'groundPlane';
         groundMesh.rotateX( Math.PI*1.5 );

@@ -45,7 +45,6 @@ export default abstract class LightBase {
      * Disposal method.
      */
     public dispose( ) : void {
-
         this.lightInstance.dispose( );
     }
 
