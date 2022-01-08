@@ -39,6 +39,18 @@ export default class LightSkylight extends LightBase {
     }
 
     /**
+     * Disposal method (inherited).
+     */
+    public dispose( ) : void {
+        if( this.debugVisualizer !== null ) {
+            // Cleanup the debug visualizer if it exists.
+            this.debugVisualizer.dispose( );
+        }
+
+        super.dispose( );
+    }
+
+    /**
      * Set the hemispheric light's sky color.
      * @param skyColor Desired sky color.
      */
@@ -96,14 +108,7 @@ export default class LightSkylight extends LightBase {
 
         // Enable the debug visualizer by, you know, creating it.
         this.debugVisualizer = new THREE.HemisphereLightHelper( this.getLightInstance( ) as THREE.HemisphereLight, defaultLightSkylightSettings.debugVisualizerSize );
-
-        {
-            // TODO (trent, 12/31/21): Fix the assumptions here and get any scene manipulation out of here.
-            const parent = this.getLightInstance( ).parent;
-            if( parent !== null ) {
-                parent.add( this.debugVisualizer );
-            }
-        }
+        this.getLightInstance( ).add( this.debugVisualizer );
 
         return true;
     }
