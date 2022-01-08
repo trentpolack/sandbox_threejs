@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { WEBGL } from 'three/examples/jsm/WebGL'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
@@ -9,6 +8,9 @@ import { Color, Mesh, Vector3 } from 'three';
 import Client from './client/client';
 import LightDirectional from './renderer/lightDirectional';
 import SceneGraph from './renderer/sceneGraph';
+
+// Scene camera.
+const camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth/window.innerHeight, 0.1, 5000.0 );
 
 // Test geometry.
 let torusKnotMeshGeometry : Mesh;
@@ -34,9 +36,16 @@ window.onload = ( ) => {
 
     init( );
 
+    Client.getRenderer( ).setSceneCamera( camera );
+
     Client.registerTickFunction( main );
     Client.run( );
 }
+
+window.addEventListener( 'resize', ( ) => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix( );
+} );
 
 /**
  * Temporary interface/class to deal with loading the bunny. 
@@ -100,8 +109,8 @@ function init( ) {
     }
 
     // CAMERA!
-    const orbitCamera = new OrbitControls( Client.camera, Client.getClientCanvas( ) );
-    Client.camera.position.z = 50.0;
+    const orbitCamera = new OrbitControls( camera, Client.getClientCanvas( ) );
+    camera.position.z = 50.0;
 
     // SETUP THE BUNNY.
     const fbxLoader = new FBXLoader( );
@@ -124,11 +133,11 @@ function init( ) {
     /**
      * Temp UI Setup.
      */
-    Client.gui.title( 'JoyGL Client' );
+    Client.getUIInstance( ).title( 'JoyGL Client' );
 
     {
         // Torus Knot customization GUI parameters.
-        let knotFolder = Client.gui.addFolder( 'knot' );
+        let knotFolder = Client.getUIInstance( ).addFolder( 'knot' );
         knotFolder.add( torusKnotGeometryData, 'radius', 0.25, 15, 0.25 );
         knotFolder.add( torusKnotGeometryData, 'tube', 0.1, 10, 0.1 );
         knotFolder.add( torusKnotGeometryData, 'tubularSegments', 5, 250, 1 );
@@ -150,7 +159,7 @@ function init( ) {
 
     {
         // Bunny visibility GUI parameters.
-        let bunnyFolder = Client.gui.addFolder( 'bunny' );
+        let bunnyFolder = Client.getUIInstance( ).addFolder( 'bunny' );
         bunnyFolder.add( bunnyMeshGroup, 'visible' );
         bunnyFolder.onChange( () => {
             bunnyMeshGroup.group.traverse( function( child ) {
@@ -165,8 +174,8 @@ function init( ) {
 
     {
         // Miscellaneous controls and functionality.
-        let debugFolder = Client.gui.addFolder( 'debug' );
-        debugFolder.add( Client.renderer, 'logRenderStats' );
+        let debugFolder = Client.getUIInstance( ).addFolder( 'debug' );
+        debugFolder.add( Client.getRenderer( ), 'logRenderStats' );
     }
 }
 

@@ -1,11 +1,12 @@
 import * as THREE from 'three'
 import { WEBGL } from 'three/examples/jsm/WebGL'
-import { GUI } from 'lil-gui'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
 import Renderer from '../renderer/renderer'
 import SceneGraph from '../renderer/sceneGraph'
+import UI from '../ui/ui'
+import GUI from 'lil-gui'
 
 /**
  * Function interface for anything that should be ticked as part of the primary client loop.
@@ -21,27 +22,23 @@ export interface ITickFunction {
  */
 export default class Client {
     /**
-     * TEMPORARY MEMBERS: BEGIN.
-     */
-    public static camera : THREE.PerspectiveCamera;
-
-    public static gui : GUI;
-
-    /**
      * TEMPORARY MEMBERS: END.
      */
 
     // Core client data.
-    public static canvas : HTMLElement;
+    private static canvas : HTMLElement;
 
     private static time : THREE.Clock;
     private static tickFunctionRegister : Array< ITickFunction >;
 
     // Rendering data.
-    public static renderer : Renderer;
+    private static renderer : Renderer;
+
+    // UI data.
+    private static ui : UI;
 
     // Optional client elements.
-    public static stats : Stats;
+    private static stats : Stats;
 
     /**
      * Client initialization and setup.
@@ -60,7 +57,7 @@ export default class Client {
         }
 
         // TODO (trent, 12/26): Move this.
-        this.gui = new GUI( );
+        this.ui = new UI( );
 
         {
             // Setup the canvas.
@@ -76,10 +73,11 @@ export default class Client {
             this.renderer.setSize( window.innerWidth, window.innerHeight );
 
             this.canvas.appendChild( this.renderer.getDomElement( ) );
-        }
 
-        // Temp method for setting up yet-to-be-organized functionality.
-        this.initSystems_Temp( );
+            window.addEventListener( 'resize', ( ) => {
+                Renderer.onWindowResize( this.renderer );
+            } );
+        }
 
         // Create the tick stack.
         this.tickFunctionRegister = new Array< ITickFunction >( );
@@ -110,20 +108,6 @@ export default class Client {
         console.log( 'JoyGL Client\n\tWebGL Support:\tWebGL 1.0 (%s)\tWebGL 2.0 (%s)', isWebGLSupported, isWebGL2Supported );
 
         return isWebGL2Supported;
-    }
-
-    /**
-     * Temp catch-all for other system setup.
-     */
-    public static initSystems_Temp( ) : void {
-        this.camera = new THREE.PerspectiveCamera( 76.0, window.innerWidth / window.innerHeight, 0.1, 5000.0 );
-
-        window.addEventListener( 'resize', ( ) => {
-            this.camera.aspect = window.innerWidth/window.innerHeight;
-            this.camera.updateProjectionMatrix( );
-
-            Renderer.onWindowResize( this.renderer );
-        } );
     }
 
     /**
@@ -164,9 +148,9 @@ export default class Client {
         }
 
         // Render the current frame to the canvas.
-        this.renderer.renderFrame( this.camera );
+        this.renderer.renderFrame( );
 
-        if( this.stats != null ) {
+        if( this.stats !== null ) {
             // Update the stats component. If it exists.
             this.stats.end( );
         }
@@ -176,6 +160,11 @@ export default class Client {
         requestAnimationFrame( tickBinding );
     }
 
+    /*****
+     * Accessors to members that should otherwise probably not be easily-accessible.
+     *  NOTE (trent, 8/1/22): Make that the case some day maybe?
+     */
+
     /**
      * Get the client's DOM canvas.
      * @returns Client's DOM element which encapsulates the primary renderer.
@@ -183,6 +172,32 @@ export default class Client {
     public static getClientCanvas( ) : HTMLElement {
         return this.canvas;
     }
+
+    /**
+     * Get the renderer instance reference.
+     * @returns Instance of the renderer.
+     */
+    public static getRenderer( ) : Renderer {
+        return( this.renderer );
+    }
+
+    /**
+     * Get the UI instance reference.
+     * @returns Instance of the UI class.
+     */
+    public static getUI( ) : UI {
+        return( this.ui );
+    }
+
+    /**
+     * Get the lil-gui GUI instance directly.
+     *  TODO (trent, 8/1/22): Stop-gap for when the UI class is more functional.
+     * @returns Instance of the lil-gui GUI class.
+     */
+    public static getUIInstance( ) : GUI {
+        return( this.ui.getUI( ) );
+    }
+    
 
     /**
      * Accessor for the renderer's scene graph instance (removing friction for the actual accessor from an app).

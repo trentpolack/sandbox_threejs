@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Camera } from 'three';
 
 import SceneGraph from './sceneGraph';
 import SkyAtmosphereRenderer from './skyAtmosphereRenderer';
@@ -37,8 +38,9 @@ enum TonemapperType {
     // ThreeJS-based WebGL renderer; kept private but still accessible through getRenderer. Should be manipulated internally almost exclusively (in practice). 
     private webglRenderer : THREE.WebGLRenderer;
 
-    // Scene Graph.
+    // Scene and Scene Graph.
     private sceneGraph : SceneGraph;
+    private sceneCamera : Camera | null = null;
 
     // Lighting.
     private skyRenderer : SkyAtmosphereRenderer | null = null;
@@ -105,6 +107,14 @@ enum TonemapperType {
     }
 
     /**
+     * Set the primary "scene camera" for frame rendering.
+     * @param camera Camera settings to render the scene from.
+     */
+    public setSceneCamera( camera : Camera ) : void {
+        this.sceneCamera = camera;
+    }
+
+    /**
      * Set (or resize) the output canvas and updates the viewport to fit the specified size.
      * @param width Width in pixels.
      * @param height Height in pixels.
@@ -166,8 +176,8 @@ enum TonemapperType {
     /**
      * Render the current scene.
      */
-    public renderFrame( camera : THREE.Camera ) : void {
-        this.getRenderer( ).render( this.sceneGraph.getScene( ), camera );
+    public renderFrame( cameraOverride : THREE.Camera | null = null ) : void {
+        this.getRenderer( ).render( this.sceneGraph.getScene( ), ( ( cameraOverride !== null ) ? cameraOverride : ( this.sceneCamera ) as Camera ) );
     }
 
     /**
