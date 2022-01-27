@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { WEBGL } from 'three/examples/jsm/WebGL'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
@@ -7,6 +6,11 @@ import Renderer from '../renderer/renderer'
 import SceneGraph from '../renderer/sceneGraph'
 import UI from '../ui/ui'
 import GUI from 'lil-gui'
+
+enum WebGLType {
+    WebGL1 = 1,     // WebGL 1.0
+    WebGL2 = 2      // WebGL 2.0
+}
 
 /**
  * Function interface for anything that should be ticked as part of the primary client loop.
@@ -103,8 +107,8 @@ export default class Client {
      */
      public static checkPlatformRequirements( ) : boolean {
         // Check and log WebGL support.
-        const isWebGLSupported = WEBGL.isWebGLAvailable( );
-        const isWebGL2Supported = WEBGL.isWebGL2Available( );
+        const isWebGLSupported = this.isWebGLAvailable( );
+        const isWebGL2Supported = this.isWebGL2Available( );
         console.log( 'JoyGL Client\n\tWebGL Support:\tWebGL 1.0 (%s)\tWebGL 2.0 (%s)', isWebGLSupported, isWebGL2Supported );
 
         return isWebGL2Supported;
@@ -206,4 +210,96 @@ export default class Client {
     public static getSceneGraph( ) : SceneGraph {
         return( this.renderer.getSceneGraph( ) );
     }
+
+    /**
+     * Get whether the browser supports WebGL 1.0.
+     * @returns Is WebGL 1.0 available.
+     */
+	static isWebGLAvailable( ) : boolean {
+		try {
+
+			const canvas = document.createElement( 'canvas' );
+			return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
+
+		} catch ( e ) {
+
+			return false;
+
+		}
+	}
+
+    /**
+     * Get whether the browser supports WebGL 1.0.
+     * @returns Is WebGL 2.0 available.
+     */
+     static isWebGL2Available( ) : boolean {
+		try {
+
+			const canvas = document.createElement( 'canvas' );
+			return !! ( window.WebGL2RenderingContext && canvas.getContext( 'webgl2' ) );
+
+		} catch ( e ) {
+
+			return false;
+
+		}
+	}
+
+    /**
+     * Get an error message that WebGL 1.0 isn't supported.
+     * @returns Element with a formatted DOM element to print to the page.
+     */
+	static getWebGLErrorMessage( ) {
+		return( this.getErrorMessage( WebGLType.WebGL1 ) );
+	}
+
+    /**
+     * Get an error message that WebGL 2.0 isn't supported.
+     * @returns Element with a formatted DOM element to print to the page.
+     */
+     static getWebGL2ErrorMessage( ) {
+		return( this.getErrorMessage( WebGLType.WebGL2 ) );
+	}
+
+    /**
+     * Get an error message for the lack of support for the queried WebGL version.
+     * @param WebGLType type to query the error message for.
+     * @returns DOM element with formatted error message.
+     */
+	static getErrorMessage( version : WebGLType ) {
+		const names = {
+			1: 'WebGL',
+			2: 'WebGL 2'
+		};
+
+		const contexts = {
+			1: window.WebGLRenderingContext,
+			2: window.WebGL2RenderingContext
+		};
+
+		let message = 'Your $0 does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">$1</a>';
+
+		const element = document.createElement( 'div' );
+		element.id = 'webglmessage';
+		element.style.fontFamily = 'monospace';
+		element.style.fontSize = '13px';
+		element.style.fontWeight = 'normal';
+		element.style.textAlign = 'center';
+		element.style.background = '#fff';
+		element.style.color = '#000';
+		element.style.padding = '1.5em';
+		element.style.width = '400px';
+		element.style.margin = '5em auto 0';
+
+		if( contexts[ version ] ) {
+			message = message.replace( '$0', 'graphics card' );
+		} else {
+			message = message.replace( '$0', 'browser' );
+		}
+
+		message = message.replace( '$1', names[ version ] as string );
+
+		element.innerHTML = message;
+		return element;
+	}
 }
